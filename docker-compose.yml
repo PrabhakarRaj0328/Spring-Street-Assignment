@@ -11,6 +11,33 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U springstreet -d prisma"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build: .
+    container_name: spring-street-api
+    command: ["./api"]
+    ports:
+      - "8080:8080"
+    environment:
+      - DATABASE_URL=postgres://springstreet:secretpassword@db:5432/prisma?sslmode=disable
+    depends_on:
+      db:
+        condition: service_healthy
+
+  etl:
+    build: .
+    container_name: spring-street-etl
+    command: ["./etl"]
+    environment:
+      - DATABASE_URL=postgres://springstreet:secretpassword@db:5432/prisma?sslmode=disable
+    depends_on:
+      db:
+        condition: service_healthy
 
 volumes:
   pgdata:

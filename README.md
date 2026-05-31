@@ -30,34 +30,31 @@ A production-quality backend system powering the financial product factsheet pag
 - **Frontend-Ready**: Includes custom CORS middleware to allow cross-origin requests from the React frontend, and ensures empty DB queries return `[]` instead of `null` to prevent frontend crashes.
 - **Accurate Product Modeling**: The mock data in the ETL accurately reflects the real-world Prisma Global Growth factsheet, utilizing institutional ETFs (VT, VTI, VEA, etc.) and matching the exact 40% NA / 30% APAC / 15% EU / 15% SA regional split.
 
-## Setup Instructions
+## Setup Instructions (Fully Dockerized)
+
+The entire application (Database, API, and ETL worker) is containerized for zero-friction deployment.
 
 ### Prerequisites
 - Docker & Docker Compose
-- Go 1.21+
 
-### 1. Start the Database
+### 1. Start the Stack
 From the root of the project, run:
 ```bash
-docker-compose up -d
+docker-compose up --build -d
 ```
-This will start a PostgreSQL container on port `5432`. The `schema.sql` file is automatically executed to create the tables and insert the mock Prisma fund.
+This will:
+1. Spin up the PostgreSQL database and initialize the schema.
+2. Build and start the ETL worker to fetch data.
+3. Build and start the API server on port 8080.
 
-### 2. Run the ETL Pipeline
-To fetch data and populate the database, run the ETL job:
+### 2. Verify Services
+Check that all three containers (`spring-street-db`, `spring-street-api`, `spring-street-etl`) are running:
 ```bash
-go run cmd/etl/main.go
+docker-compose ps
 ```
-You will see logs indicating successful data ingestion.
 
-### 3. Start the API Server
-In a separate terminal, start the API:
-```bash
-go run cmd/api/main.go
-```
-The server will start on port `8080`.
-
-### 4. Test Endpoints
+### 3. Test Endpoints
+The API is now running locally on port 8080:
 - **Fund Overview**: `curl http://localhost:8080/api/fund/1`
 - **Holdings**: `curl http://localhost:8080/api/fund/1/holdings`
 - **Sector Exposure**: `curl http://localhost:8080/api/fund/1/exposure/sector`

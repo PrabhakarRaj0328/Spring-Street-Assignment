@@ -1,0 +1,12 @@
+.git
+.gitignore
+.env
+.idea/
+.vscode/
+api.exe
+etl.exe
+api
+etl
+bin/
+README.md
+Spring_Street_Backend_Assignment.pdf
